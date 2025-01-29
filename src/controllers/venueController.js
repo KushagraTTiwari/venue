@@ -1,6 +1,7 @@
 const {kafka} = require('../config/kafka');
 const { v4: uuidv4 } = require('uuid');
 const {setResponseWithTimeout} = require('../utils/responseMap');
+const pool = require('../config/db');
 
 const producer = kafka.producer();
 

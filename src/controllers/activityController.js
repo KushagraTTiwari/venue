@@ -1,4 +1,4 @@
-const pool = require('../config/database');
+const pool = require('../config/db');
 
 exports.createActivity = async (req, res) => {
     const { id, name, tagCount, icon, timeStamp } = req.body;
