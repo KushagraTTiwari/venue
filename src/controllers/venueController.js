@@ -68,3 +68,88 @@ exports.getVenue = async (req, res) => {
     console.log("Producer is Disconected");
   }
 };
+
+
+exports.createVenue = async(req,res) =>{
+
+  // Extract data from the request body
+  const {
+    id,
+    name,
+    address1,
+    address2,
+    contactNo,
+    mapLink,
+    location,
+    activityLinks,
+    image,
+    googleRatings,
+    reviews,
+    description,
+    nearByVenues,
+    locationTimings,
+    timestamp,
+  } = req.body;
+
+  // SQL query to insert data
+  const query = `
+    INSERT INTO venue (
+      ID,
+      name,
+      address1,
+      address2,
+      contactNo,
+      mapLink,
+      location,
+      activityLinks,
+      image,
+      googleRatings,
+      reviews,
+      description,
+      nearByVenues,
+      locationTimings,
+      timestamp
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+    )
+    RETURNING *;
+  `;
+
+  // Values to bind to the query
+  const values = [
+      id,
+      name,
+      address1,
+      address2,
+      contactNo,
+      mapLink,
+      JSON.stringify(location),
+      JSON.stringify(activityLinks),
+      JSON.stringify(image),
+      googleRatings,
+      JSON.stringify(reviews),
+      description,
+      JSON.stringify(nearByVenues),
+      JSON.stringify(locationTimings),
+      JSON.stringify(timestamp)
+  ];
+
+  try {
+    // Execute the query
+    const result = await pool.query(query, values);
+
+    // Respond with the inserted data
+    res.status(201).json({
+      success: true,
+      data: result.rows[0],
+      message: 'Row inserted Successufully in Venue Data'
+    });
+  } catch (error) {
+    console.error('Error inserting data into venue table:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to insert data into venue table',
+      error: error.message,
+    });
+  }
+};
