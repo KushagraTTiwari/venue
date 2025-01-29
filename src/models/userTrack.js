@@ -2,7 +2,7 @@ const createUserTrackTable = async (dbInstance) => {
     const queryText = `
     CREATE TABLE IF NOT EXISTS user_clicks (
     id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL UNIQUE,
+    user_id VARCHAR(255) NOT NULL UNIQUE,
     clicks JSONB DEFAULT '[]'
 );
 `

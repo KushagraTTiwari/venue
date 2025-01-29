@@ -2,11 +2,13 @@
 const { kafka } = require('../config/kafka');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('../config/db');
+const {setResponseWithTimeout} = require("../utils/responseMap")
 
 const producer = kafka.producer();
 
 exports.userBooking = async (req, res) => {
     const { userId, venueId, eventId, paid_price, transaction_Id } = req.body;
+    console.log("from controller")
 
   if (!userId || !venueId || !eventId || !paid_price || !transaction_Id) {
     return res.status(400).json({ success: false, message: 'Plese fill the all required field' });
@@ -27,6 +29,7 @@ exports.userBooking = async (req, res) => {
       transaction_Id,
       timestamp
     };
+    console.log("the payload is : -> ", payload)
 
     setResponseWithTimeout(requestId, res);
 
@@ -39,6 +42,8 @@ exports.userBooking = async (req, res) => {
       }]
     });
 
+    console.log("message send to consumer by producer")
+
     // res.status(200).json({ success: true, message: 'User click tracked successfully' });
   } catch (error) {
     console.error('Getting error while adding the booking detail :', error);
@@ -50,22 +55,24 @@ exports.userBooking = async (req, res) => {
 
 
 exports.getBookingsByUser = async (req, res) => {
-    const { userid } = req.params;
+    const { userId } = req.params;
+    console.log("userid : ->", userId)
+    console.log("params : ->", req.params)
   
     try {
       // Validate userid
-      if (!userid) {
+      if (!userId) {
         return res.status(400).json({ success: false, message: 'User ID is required' });
       }
   
       // Fetch bookings by userid
       const query = `
-        SELECT userid, venueid, eventid, paid_price, transaction_id, transaction_time
+        SELECT userid, venueid, eventid, paid_price, transaction_id, timestamp
         FROM bookings
         WHERE userid = $1
-        ORDER BY transaction_time DESC;
+        ORDER BY timestamp DESC;
       `;
-      const result = await pool.query(query, [userid]);
+      const result = await pool.query(query, [userId]);
   
       if (result.rows.length === 0) {
         return res.status(404).json({ success: false, message: 'No bookings found for the user' });

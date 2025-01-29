@@ -6,17 +6,17 @@ const { getResponse, deleteResponse } = require('../utils/responseMap');
 // Process user track message
 const processUserTrackMessage = async (message, Id) => {
   const { userId, venueId, eventId, timestamp } = message;
-  console.log("datas are -> ", userId, venueId, eventId, timestamp )
+  // console.log("datas are -> ", userId, venueId, eventId, timestamp )
   // const timestamp = new Date().toISOString()
   const key = Id ? Id.toString() : 'undefined';
-  console.log("request is -> ", key)
-  var res = getResponse(key)
-  if (!res) {
-    console.error('Response object is undefined');
-    return;
-  } else {
-    console.log("getting res : ", res)
-  }
+  // console.log("request is -> ", key)
+  var res = getResponse(key).res
+  // if (!res) {
+  //   console.error('Response object is undefined');
+  //   return;
+  // } else {
+  //   console.log("getting res : ", res)
+  // }
   try {
     const user = await pool.connect();
     const userResult = await user.query('SELECT clicks FROM user_clicks WHERE user_id = $1', [userId]);
@@ -74,7 +74,7 @@ const processUserTrackMessage = async (message, Id) => {
       await user.query('INSERT INTO user_clicks (user_id, clicks) VALUES ($1, $2)', [userId, JSON.stringify(clicks)]);
     }
     user.release();
-   
+  
     res.status(200).send({ message: 'Click tracked successfully' });
   } catch (error) {
     console.error('Database error:', error);

@@ -5,9 +5,13 @@ const { getResponse, deleteResponse } = require('../utils/responseMap');
 
 // Process user track message
 const processUserTrackMessage = async (message, Id) => {
+  console.log('i am in bookin consumer')
     const { userId, venueId, eventId, paid_price, transaction_Id, timestamp } = message;
     const key = Id ? Id.toString() : 'undefined';
-    const res = getResponse(key);
+    const res = getResponse(key).res;
+    if(res){
+      console.log('i am res of bookin consumer')
+    }
   try{
     // Ensure transaction ID is unique
     const existingTransaction = await pool.query(
@@ -23,7 +27,7 @@ const processUserTrackMessage = async (message, Id) => {
 
        // Insert booking into the database
     const query = `
-    INSERT INTO bookings (userid, venueid, eventid, paid_price, transaction_id, transaction_time)
+    INSERT INTO bookings (userid, venueid, eventid, paid_price, transaction_id, timestamp)
     VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING *;
   `;
@@ -38,7 +42,7 @@ const processUserTrackMessage = async (message, Id) => {
   });
 } catch (error) {
   console.error('Database error:', error);
-  res.status(500).send({ error: 'Failed to track click' });
+  res.status(500).send({ error: 'Failed to book' });
 } finally {
     deleteResponse(Id);
   }
@@ -51,9 +55,9 @@ const setupUserBookingConsumer = async (consumer, producer) => {
       try {
         const messageValue = JSON.parse(message.value.toString());
         await processUserTrackMessage(messageValue, message.key);
-        console.info('User track message processed:', messageValue);
+        console.info('User booking message processed:', messageValue);
       } catch (error) {
-        console.error('Error processing user track message:', error);
+        console.error('Error processing booking message:', error);
       }
     }
   });
@@ -67,7 +71,7 @@ const initializeUserBookingProducerConsumer = async () => {
   try {
     await consumer.connect();
     await producer.connect();
-    await consumer.subscribe({ topics: ['user-bokking-requests'] });
+    await consumer.subscribe({ topics: ['user-booking-requests'] });
     await setupUserBookingConsumer(consumer, producer);
 
     console.info('User Booking Consumer started successfully');

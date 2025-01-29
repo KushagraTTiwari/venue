@@ -109,7 +109,7 @@ const sendResponse = async (producer, response, key) => {
   const { success, data, requestId, metadata} = response;
 
 
-  const res = getResponse(requestId); // Get the HTTP response object from the map
+  const res = getResponse(requestId).res; // Get the HTTP response object from the map
   if (res) {
     if (success) {
       res.status(200).json({ success, data,metadata }); // Send the data back to the client

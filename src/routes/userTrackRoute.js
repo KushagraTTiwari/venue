@@ -9,6 +9,6 @@ const router = express.Router();
 router.post('/track', trackUserClick);
 router.get('/track/:userId', getUserTrackingData);
 router.post('/booking', userBooking)
-router.post('/booking/:userId', getBookingsByUser)
+router.get('/booking/:userId', getBookingsByUser)
 
 module.exports = router;
